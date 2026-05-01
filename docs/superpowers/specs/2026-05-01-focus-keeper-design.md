@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-01  
 **Status:** Approved  
-**Revision:** 2 (research-enriched, visual design approved)
+**Revision:** 3 (analysis warnings integrated)
 
 ---
 
@@ -40,11 +40,13 @@ The three-phase structure maps directly to Huberman's ultradian focus cycle rese
 |---|---|---|
 | Focus Drill | 60-second visual gaze lock | Triggers acetylcholine release in visual cortex; primes top-down attention circuits before cognitive work begins |
 | Focus Session | 25–90 min work block | Epinephrine sustains arousal; acetylcholine narrows attention; dopamine maintains motivation. Sessions past ~90 min deplete all three — hence the presets |
-| NSDR | 10–20 min non-sleep deep rest | Shifts autonomic state from sympathetic to parasympathetic; restores dopamine baseline by up to 65%; consolidates memory formed during the session |
+| NSDR | 10–20 min non-sleep deep rest | Shifts autonomic state from sympathetic to parasympathetic; Yoga Nidra-style rest has been associated with increased endogenous dopamine release in small imaging studies; may support memory consolidation after the session |
 
 **Why 60 seconds for the drill:** Huberman's protocols describe 60–90 seconds of sustained overt visual focus as sufficient to prime gaze-related acetylcholine circuits. The previous 30-second spec was too short.
 
 **Why NSDR matters:** A bare countdown provides no benefit — the user needs to be cued into a body-scan/relaxation state. The NSDR screen includes brief text guidance to prompt this, requiring no external audio or internet dependency.
+
+**Evidence caveat:** Do not claim in-product that the app "restores dopamine baseline by 65%." The 65% dopamine figure comes from a Yoga Nidra PET study with experienced practitioners, not from a generic 10–20 minute timer. Product copy should describe NSDR as a guided rest cue, not a guaranteed biological outcome.
 
 ---
 
@@ -55,7 +57,7 @@ The three-phase structure maps directly to Huberman's ultradian focus cycle rese
 | Framework | React 18 + Vite |
 | Routing | None — single page, phase state machine |
 | PWA | `vite-plugin-pwa` (Workbox generateSW strategy) |
-| Notifications | Browser Notifications API |
+| Notifications | Browser Notifications API (best-effort enhancement; on-screen countdown remains primary) |
 | Audio | Web Audio API — OscillatorNode, no audio files |
 | Persistence | None — all state is in-memory React |
 | Deployment | `localhost` dev now, Vercel later (HTTPS required for service worker in production) |
@@ -183,7 +185,8 @@ Each screen receives only the props it needs from `App` state. No screen imports
 | Ultradian | 90 | Huberman's full ultradian cycle — default selection |
 
 - Custom input: `<input type="number">`, range 5–180, labeled "min"
-- "Begin →" button → advances to Focus Drill
+- Custom values are clamped to 5–180; empty, non-numeric, or invalid values disable "Begin →"
+- "Begin →" button → creates/resumes the `AudioContext`, then advances to Focus Drill
 - Selecting a preset sets the custom input value to match; editing custom input deselects presets
 
 ---
@@ -214,6 +217,12 @@ Each screen receives only the props it needs from `App` state. No screen imports
 
 **Tab-hidden drift:** Use `document.visibilitychange` + `Date.now()` timestamps to correct for drift when the tab is hidden. Do not rely solely on `setInterval` for accuracy.
 
+**Countdown model:** Store an absolute deadline rather than decrementing by one each tick:
+
+- On start/resume: `deadlineMs = Date.now() + secondsLeft * 1000`
+- On tick/visibility change: `secondsLeft = Math.max(0, Math.ceil((deadlineMs - Date.now()) / 1000))`
+- On pause: recompute remaining seconds and clear the active deadline
+
 **Page refresh mid-session:** No persistence — state is lost. This is acceptable for v1. The user returns to Home.
 
 ---
@@ -231,18 +240,23 @@ Post-session non-sleep deep rest cue.
 
 | Button | Duration | Note |
 |---|---|---|
-| Rest 20 min | 20 min | Marked "Recommended" — research shows 20-min NSDR most significantly increases neuroplasticity |
+| Rest 20 min | 20 min | Marked "Recommended" — longer rest is more likely to support a meaningful relaxation state |
 | Rest 10 min | 10 min | "Quick reset" |
 
 - **Skip** → returns immediately to Home
 - On selecting a rest duration:
-  1. Request notification permission if not yet granted (`Notification.requestPermission()`)
-  2. If granted: schedule a notification for when the timer ends
-  3. If denied: NSDR timer still runs silently; a visible on-screen countdown shows remaining time so the user isn't stranded
-  4. Screen transitions to a minimal rest view: dim screen, large countdown, no other controls
+  1. Feature-detect `Notification` support
+  2. Request notification permission if not yet granted (`Notification.requestPermission()`)
+  3. If granted: schedule a best-effort notification for when the timer ends
+  4. If denied or unsupported: the NSDR timer still runs; a visible on-screen countdown shows remaining time so the user isn't stranded
+  5. Screen transitions to a minimal rest view: dim screen, large countdown, no visible controls
 - On rest complete (or notification dismissed): play chime, return to Home
 
-**Notification denial UX:** Show on-screen countdown prominently if notification permission was denied — do not just silently count down with nothing visible.
+**Notification reliability:** Browser notifications require support and a secure context, and scheduled `setTimeout` notifications only work while the app remains active. Closed-app delivery is out of scope for v1 unless a service-worker notification strategy is added later.
+
+**Notification denial UX:** Show on-screen countdown prominently if notification permission was denied or unsupported — do not just silently count down with nothing visible.
+
+**Rest escape hatch:** Even though the rest view has no visible controls, `Escape` may return to Home so users are never trapped in a no-control screen.
 
 ---
 
@@ -259,6 +273,7 @@ Chime: OscillatorNode (sine wave, 528 Hz)
 - `AudioContext` is created once on the first user gesture (the "Begin →" button click on the Pick Duration screen)
 - Stored in a ref, reused for all subsequent chimes
 - If the context is in `'suspended'` state, call `context.resume()` before playing
+- If Web Audio is unavailable or playback fails, fail silently; sound is supportive, not required for flow completion
 - Volume: gain peak `0.15` — subtle, not startling
 
 ---
@@ -273,6 +288,8 @@ Chime: OscillatorNode (sine wave, 528 Hz)
 | Offline support | `vite-plugin-pwa` with `generateSW` strategy pre-caches app shell on first load |
 | Update UX | On new service worker activation, show a small "Update available — reload to refresh" toast. Auto-update on next page load if user dismisses. |
 | Icons | 192×192 PNG + 512×512 PNG required for Lighthouse installability; also provide `apple-touch-icon` 180×180 for iOS |
+
+**Production verification:** PWA install/offline behavior must be checked from a production build (`npm run build` + `npm run preview` or deployed HTTPS). Vite dev disables or alters service-worker behavior by default, so dev-server testing is not enough.
 
 ### Manifest Fields
 
@@ -301,6 +318,7 @@ Chime: OscillatorNode (sine wave, 528 Hz)
 - Keyboard shortcuts:
   - `Space` → Pause / Resume (during Timer phase)
   - `Escape` → Abandon (during Timer phase, no confirmation)
+  - `Escape` → Return Home (during minimal NSDR rest view)
 - ARIA roles: timer countdown uses `role="timer"` + `aria-live="off"` (avoid constant announcements)
 - Color contrast: all body text meets WCAG AA (4.5:1 against its background surface)
 - No motion-only affordances — all state changes include a text change
@@ -310,8 +328,9 @@ Chime: OscillatorNode (sine wave, 528 Hz)
 ## Deployment Path
 
 1. **Now:** `npm run dev` → `localhost` (service worker disabled in dev by default with `vite-plugin-pwa`)
-2. **Later:** Push to GitHub → connect to Vercel → auto-deploy on push (HTTPS provided by Vercel — required for production service worker)
-3. **Optional:** Wrap with Capacitor for native iOS/Android App Store submission
+2. **Before release:** `npm run build` + `npm run preview` → verify manifest, app shell precache, offline reload, update toast, and installability
+3. **Later:** Push to GitHub → connect to Vercel → auto-deploy on push (HTTPS provided by Vercel — required for production service worker)
+4. **Optional:** Wrap with Capacitor for native iOS/Android App Store submission
 
 ---
 
