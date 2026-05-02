@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-01  
 **Status:** Approved  
-**Revision:** 3 (analysis warnings integrated)
+**Revision:** 7 (latest app behavior captured)
 
 ---
 
@@ -11,6 +11,14 @@
 Focus Keeper is a personal PWA focus timer grounded in Andrew Huberman's neuroscience protocols. It guides the user through a structured focus ritual: a pre-session visual attention drill, a flexible countdown timer, and a post-session NSDR (non-sleep deep rest) prompt.
 
 The app is intentionally minimal — no accounts, no data persistence, no dashboards. It runs in the browser, installs as a standalone desktop app on macOS, and is installable on iOS/Android home screens once deployed.
+
+### Current Interaction Summary
+
+- The app starts directly on duration selection; there is no Home or landing screen.
+- Preset duration cards are immediate-start actions. Tapping 25, 52, or 90 minutes starts the focus ritual without a separate Begin button.
+- Custom duration uses a compact inline start control, and pressing Enter in the custom input also starts the ritual.
+- The 60-second focus drill remains the default ritual entry, but includes a low-emphasis "Skip drill" control for repeat users and testing.
+- Abandon, NSDR skip, rest completion, refresh, and rest escape all return to Pick Duration.
 
 ---
 
@@ -112,17 +120,17 @@ Single HTML page. No router. UI is controlled by a top-level `phase` state varia
 ### Phase State Machine
 
 ```
-home → pickDuration → focusDrill → timer → nsdr → home
-                                     ↓
-                                  (abandon)
-                                     ↓
-                                   home
+pickDuration → focusDrill → timer → nsdr → pickDuration
+                                  ↓
+                               (abandon)
+                                  ↓
+                              pickDuration
 ```
 
 ### Top-Level State Shape
 
 ```ts
-type Phase = 'home' | 'pickDuration' | 'focusDrill' | 'timer' | 'nsdr';
+type Phase = 'pickDuration' | 'focusDrill' | 'timer' | 'nsdr';
 
 interface AppState {
   phase: Phase;
@@ -145,7 +153,6 @@ All state lives at the top level (`App.tsx`). No context, no external store — 
 
 ```
 App
-├── HomeScreen
 ├── PickDurationScreen
 ├── FocusDrillScreen
 ├── TimerScreen
@@ -163,18 +170,10 @@ Each screen receives only the props it needs from `App` state. No screen imports
 
 ## Screens
 
-### 1. Home
+### 1. Pick Duration
 
-- App icon (styled `div`, emoji `⏱`, no image file)
-- App name: "Focus Keeper"
-- Tagline: "Science-backed deep work"
-- Single "Start Session" button → advances to Pick Duration
-- Small hint text: "Add to home screen to install" (visible only when not in standalone mode — use `window.matchMedia('(display-mode: standalone)')`)
-
----
-
-### 2. Pick Duration
-
+- This is the first screen; there is no separate Home/landing screen
+- Compact app identity at top: icon (styled `div`, emoji `⏱`, no image file), "Focus Keeper", and tagline "Science-backed deep work"
 - Heading: "How long?"
 - Three preset buttons:
 
@@ -184,26 +183,28 @@ Each screen receives only the props it needs from `App` state. No screen imports
 | Sustained | 52 | Extended focus block |
 | Ultradian | 90 | Huberman's full ultradian cycle — default selection |
 
-- Custom input: `<input type="number">`, range 5–180, labeled "min"
-- Custom values are clamped to 5–180; empty, non-numeric, or invalid values disable "Begin →"
-- "Begin →" button → creates/resumes the `AudioContext`, then advances to Focus Drill
-- Selecting a preset sets the custom input value to match; editing custom input deselects presets
+- Tapping a preset immediately creates/resumes the `AudioContext`, sets that duration, and advances to Focus Drill
+- Custom input: `<input type="number">`, range 5–180, labeled "min", with a compact inline start control
+- Custom values are clamped to 5–180; empty, non-numeric, or invalid values disable the custom start control
+- Pressing Enter in the custom input or tapping its inline start control creates/resumes the `AudioContext`, then advances to Focus Drill
+- Selecting a preset no longer waits for a separate confirmation button
+- Small hint text: "Add to home screen to install" (visible only when not in standalone mode — use `window.matchMedia('(display-mode: standalone)')`)
 
 ---
 
-### 3. Focus Drill
+### 2. Focus Drill
 
 - Full-screen `surface-deep` (`#0b0b0e`) background — darkest screen in the app
 - Instruction text at top: "Fix your gaze on this dot" / sub-line: "Do not look away"
 - Single centered dot: `7px`, `#b0b0bc`, `opacity: 0.8` — no animation, no pulse
 - **60-second countdown** displayed at bottom in large, dim numerals (not meant to be read actively — user's eyes should be on the dot)
-- **No skip button** — this is the ritual entry point; skipping undermines the protocol
+- Low-emphasis **Skip drill** control — advances directly to Timer for repeat users/testing, but must be visually secondary so the gaze ritual remains the default path
 - Auto-advances to Timer when countdown reaches zero
-- On phase enter: play a soft single-tone chime via Web Audio API to mark the transition (AudioContext must be created/resumed during the "Begin" button click handler on screen 2, not here — browser blocks audio without a prior user gesture)
+- On phase enter: play a soft single-tone chime via Web Audio API to mark the transition (AudioContext must be created/resumed during the preset/custom start gesture, not here — browser blocks audio without a prior user gesture)
 
 ---
 
-### 4. Timer
+### 3. Timer
 
 - Phase label at top: "Deep Focus" (small, dim, uppercase)
 - Circular progress ring (SVG): outer track `surface-raised`, fill arc `accent-dim` (`#2e3a70`), `stroke-linecap: round`
@@ -212,7 +213,7 @@ Each screen receives only the props it needs from `App` state. No screen imports
 - Status text below ring: "Session in progress" / "Paused"
 - Two controls at bottom:
   - **Pause / Resume** — freezes `useCountdown`; label toggles between "⏸ Pause" and "▶ Resume"
-  - **Abandon** — returns immediately to Home, resets all state; no confirmation dialog
+  - **Abandon** — returns immediately to Pick Duration, resets all active session state; no confirmation dialog
 - Auto-advances to NSDR when countdown reaches zero; plays chime on completion
 
 **Tab-hidden drift:** Use `document.visibilitychange` + `Date.now()` timestamps to correct for drift when the tab is hidden. Do not rely solely on `setInterval` for accuracy.
@@ -223,11 +224,11 @@ Each screen receives only the props it needs from `App` state. No screen imports
 - On tick/visibility change: `secondsLeft = Math.max(0, Math.ceil((deadlineMs - Date.now()) / 1000))`
 - On pause: recompute remaining seconds and clear the active deadline
 
-**Page refresh mid-session:** No persistence — state is lost. This is acceptable for v1. The user returns to Home.
+**Page refresh mid-session:** No persistence — state is lost. This is acceptable for v1. The user returns to Pick Duration.
 
 ---
 
-### 5. NSDR Prompt
+### 4. NSDR Prompt
 
 Post-session non-sleep deep rest cue.
 
@@ -243,20 +244,20 @@ Post-session non-sleep deep rest cue.
 | Rest 20 min | 20 min | Marked "Recommended" — longer rest is more likely to support a meaningful relaxation state |
 | Rest 10 min | 10 min | "Quick reset" |
 
-- **Skip** → returns immediately to Home
+- **Skip** → returns immediately to Pick Duration
 - On selecting a rest duration:
   1. Feature-detect `Notification` support
   2. Request notification permission if not yet granted (`Notification.requestPermission()`)
   3. If granted: schedule a best-effort notification for when the timer ends
   4. If denied or unsupported: the NSDR timer still runs; a visible on-screen countdown shows remaining time so the user isn't stranded
   5. Screen transitions to a minimal rest view: dim screen, large countdown, no visible controls
-- On rest complete (or notification dismissed): play chime, return to Home
+- On rest complete (or notification dismissed): play chime, return to Pick Duration
 
 **Notification reliability:** Browser notifications require support and a secure context, and scheduled `setTimeout` notifications only work while the app remains active. Closed-app delivery is out of scope for v1 unless a service-worker notification strategy is added later.
 
 **Notification denial UX:** Show on-screen countdown prominently if notification permission was denied or unsupported — do not just silently count down with nothing visible.
 
-**Rest escape hatch:** Even though the rest view has no visible controls, `Escape` may return to Home so users are never trapped in a no-control screen.
+**Rest escape hatch:** Even though the rest view has no visible controls, `Escape` may return to Pick Duration so users are never trapped in a no-control screen.
 
 ---
 
@@ -270,7 +271,7 @@ Chime: OscillatorNode (sine wave, 528 Hz)
   → AudioContext.destination
 ```
 
-- `AudioContext` is created once on the first user gesture (the "Begin →" button click on the Pick Duration screen)
+- `AudioContext` is created once on the first user gesture (preset tap, custom inline start, or Enter in the custom input on the Pick Duration screen)
 - Stored in a ref, reused for all subsequent chimes
 - If the context is in `'suspended'` state, call `context.resume()` before playing
 - If Web Audio is unavailable or playback fails, fail silently; sound is supportive, not required for flow completion
@@ -318,7 +319,7 @@ Chime: OscillatorNode (sine wave, 528 Hz)
 - Keyboard shortcuts:
   - `Space` → Pause / Resume (during Timer phase)
   - `Escape` → Abandon (during Timer phase, no confirmation)
-  - `Escape` → Return Home (during minimal NSDR rest view)
+  - `Escape` → Return to Pick Duration (during minimal NSDR rest view)
 - ARIA roles: timer countdown uses `role="timer"` + `aria-live="off"` (avoid constant announcements)
 - Color contrast: all body text meets WCAG AA (4.5:1 against its background surface)
 - No motion-only affordances — all state changes include a text change

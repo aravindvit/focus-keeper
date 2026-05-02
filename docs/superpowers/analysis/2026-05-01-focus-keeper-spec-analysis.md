@@ -12,7 +12,7 @@ The spec is coherent and implementable as a small React + Vite PWA. The product 
 
 The main implementation risks are not React complexity; they are browser behavior:
 
-- Web Audio must be unlocked from the `Begin` click before the focus drill starts.
+- Web Audio must be unlocked from the preset/custom start gesture before the focus drill starts.
 - Browser notifications are limited availability and require secure contexts.
 - Timers need timestamp-based correction because hidden tabs throttle intervals.
 - PWA install/offline behavior requires production-like testing, not only Vite dev.
@@ -29,7 +29,7 @@ The neuroscience framing is directionally plausible, but some claims should be p
 
 Huberman's "Neuroplasticity Super Protocol" recommends staring at a point/object for 30-60 seconds before starting focused work and connects the effort to top-down attentional engagement involving acetylcholine-related circuits.
 
-Implementation implication: a 60-second gaze-lock drill is defensible. The no-skip decision is a product choice, not a technical requirement.
+Implementation implication: a 60-second gaze-lock drill is defensible. A low-emphasis skip control is acceptable for repeat users and testing, but should not visually compete with the ritual.
 
 Source: Huberman Lab, "Teach & Learn Better With A Neuroplasticity Super Protocol"  
 https://www.hubermanlab.com/teach-and-learn-better-with-a-neuroplasticity-super-protocol
@@ -102,13 +102,13 @@ Sources:
 - No persistence keeps implementation fast and avoids privacy/account complexity.
 - The color palette and typography are specific enough to implement without visual guesswork.
 - The NSDR prompt gives enough guidance to make the rest phase meaningful even without audio.
-- The "abandon returns home, no confirmation" behavior is simple and consistent with a low-stakes personal tool.
+- The "abandon returns to duration selection, no confirmation" behavior is simple and consistent with a low-stakes personal tool.
 
 ### UX Risks
 
-- No skip button on the focus drill may frustrate repeat users or people testing the app. Keep it for spec fidelity, but QA should have a dev-only bypass or short test duration.
+- A visible focus-drill skip control may undermine the ritual if overemphasized. Keep it low contrast and secondary.
 - If notification permission is denied, the rest screen must still feel complete. The spec already catches this; implementation should not hide all controls and leave users uncertain.
-- The minimal rest view says "no other controls," but users may need an escape route. Consider allowing `Escape` to return home for accessibility and user agency, even if no visible button is shown.
+- The minimal rest view says "no other controls," but users may need an escape route. Consider allowing `Escape` to return to duration selection for accessibility and user agency, even if no visible button is shown.
 - Custom duration needs clamping and validation. A blank input should not start a `NaN` timer.
 
 ---
@@ -137,7 +137,7 @@ This handles hidden-tab drift and normal timer throttling.
 
 ### Audio
 
-Create/resume the `AudioContext` inside the `Begin` button handler, because that is the user gesture. Store it in a ref and reuse it. Chimes should fail silently if audio is unavailable.
+Create/resume the `AudioContext` inside the preset/custom start handler, because that is the user gesture. Store it in a ref and reuse it. Chimes should fail silently if audio is unavailable.
 
 ### Notifications
 
@@ -166,15 +166,15 @@ Production verification should include `npm run build` and `npm run preview`, th
 
 ### Core Flow
 
-- Home screen shows app icon, name, tagline, start button, and install hint only outside standalone display mode.
-- Start advances to duration picker.
+- First screen is duration selection; there is no separate Home/landing screen.
+- Duration screen shows compact app identity, tagline, immediately-starting presets, custom input with inline start control, and install hint only outside standalone display mode.
 - Duration picker supports presets 25, 52, 90 and custom 5-180.
-- Begin unlocks audio and advances to the 60-second focus drill.
-- Focus drill auto-advances to timer at zero and has no visible skip button.
-- Timer can pause/resume and abandon to reset home.
+- Preset tap or custom start unlocks audio and advances to the 60-second focus drill.
+- Focus drill auto-advances to timer at zero and includes a low-emphasis skip control.
+- Timer can pause/resume and abandon to reset to duration selection.
 - Timer auto-advances to NSDR prompt at zero and plays a chime.
 - NSDR prompt supports 20-minute recommended rest, 10-minute rest, and skip.
-- Rest countdown completes, plays a chime, and returns home.
+- Rest countdown completes, plays a chime, and returns to duration selection.
 
 ### Technical
 
@@ -215,5 +215,5 @@ Production verification should include `npm run build` and `npm run preview`, th
 - Change "restores dopamine baseline by up to 65%" to a more cautious Yoga Nidra evidence statement.
 - Clarify that NSDR notifications are best-effort while the app remains active in v1.
 - Decide whether the minimal rest countdown needs an invisible or keyboard-only escape path.
-- Add explicit invalid custom-duration handling: clamp to 5-180 and disable Begin when empty/invalid.
+- Add explicit invalid custom-duration handling: clamp to 5-180 and disable custom start when empty/invalid.
 - Add production PWA verification steps to the Definition of Done.

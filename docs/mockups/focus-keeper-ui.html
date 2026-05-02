@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Focus Keeper UI Mockup</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --surface-deep: #0b0b0e;
+        --surface-base: #131316;
+        --surface-raised: #1a1a20;
+        --surface-accent: #17192e;
+        --border-default: #22222a;
+        --border-accent: #28306a;
+        --accent-dim: #2e3a70;
+        --accent-mid: #4455aa;
+        --accent-text: #6878bc;
+        --accent-bright: #7888cc;
+        --text-primary: #c8c8d4;
+        --text-secondary: #76768a;
+        --text-dim: #4d4d62;
+        --shadow: 0 28px 90px rgb(0 0 0 / 0.42);
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+        background: var(--surface-base);
+        color: var(--text-primary);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background:
+          linear-gradient(180deg, #16161b 0%, var(--surface-base) 42%, #0f0f13 100%);
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .review-shell {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr);
+      }
+
+      .screen-nav {
+        border-right: 1px solid var(--border-default);
+        padding: 28px 20px;
+        background: #101014;
+      }
+
+      .brand-line {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 28px;
+      }
+
+      .brand-icon {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--border-accent);
+        border-radius: 9px;
+        background: var(--surface-accent);
+        color: var(--accent-bright);
+        font-size: 18px;
+      }
+
+      .brand-copy {
+        display: grid;
+        gap: 2px;
+      }
+
+      .brand-name {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .brand-meta {
+        color: var(--text-dim);
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .nav-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .nav-button {
+        width: 100%;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        padding: 12px;
+        background: transparent;
+        color: var(--text-secondary);
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .nav-button:hover {
+        border-color: var(--border-default);
+        color: var(--text-primary);
+      }
+
+      .nav-button[aria-pressed="true"] {
+        border-color: var(--border-accent);
+        background: var(--surface-accent);
+        color: var(--accent-bright);
+      }
+
+      .nav-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .nav-caption {
+        display: block;
+        margin-top: 4px;
+        color: var(--text-dim);
+        font-size: 11px;
+      }
+
+      .stage {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 34px;
+      }
+
+      .device {
+        width: min(390px, 100%);
+        min-height: 760px;
+        overflow: hidden;
+        border: 1px solid #262630;
+        border-radius: 26px;
+        background: var(--surface-base);
+        box-shadow: var(--shadow);
+      }
+
+      .app-screen {
+        min-height: 760px;
+        display: none;
+        padding: 28px;
+      }
+
+      .app-screen[data-active="true"] {
+        display: flex;
+        flex-direction: column;
+      }
+
+      h2 {
+        margin: 0;
+        color: var(--text-primary);
+        font-weight: 600;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        font-size: 30px;
+      }
+
+      p {
+        margin: 0;
+        color: var(--text-secondary);
+        line-height: 1.55;
+      }
+
+      .primary-button,
+      .secondary-button,
+      .preset-button,
+      .rest-button {
+        border: 1px solid var(--border-default);
+        border-radius: 12px;
+        background: var(--surface-raised);
+        color: var(--text-primary);
+        cursor: pointer;
+      }
+
+      .primary-button {
+        width: 100%;
+        min-height: 52px;
+        border-color: var(--border-accent);
+        background: var(--surface-accent);
+        color: var(--accent-bright);
+        font-weight: 600;
+      }
+
+      .secondary-button {
+        min-height: 48px;
+        padding: 0 18px;
+        color: var(--text-secondary);
+      }
+
+      .hint {
+        color: var(--text-dim);
+        text-align: center;
+        font-size: 13px;
+      }
+
+      .duration-screen,
+      .timer-screen,
+      .nsdr-screen {
+        justify-content: space-between;
+      }
+
+      .app-masthead {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 34px;
+      }
+
+      .mini-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .mini-icon {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--border-accent);
+        border-radius: 11px;
+        background: var(--surface-accent);
+        color: var(--accent-bright);
+        font-size: 20px;
+      }
+
+      .mini-title {
+        display: block;
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      .mini-subtitle {
+        display: block;
+        margin-top: 3px;
+        color: var(--text-dim);
+        font-size: 12px;
+      }
+
+      .screen-header {
+        display: grid;
+        gap: 8px;
+      }
+
+      .eyebrow {
+        color: var(--text-dim);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .duration-options {
+        display: grid;
+        gap: 12px;
+        margin-top: 34px;
+      }
+
+      .preset-button {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        min-height: 70px;
+        padding: 0 16px;
+      }
+
+      .preset-button.is-active {
+        border-color: var(--border-accent);
+        background: var(--surface-accent);
+      }
+
+      .preset-main {
+        display: grid;
+        gap: 5px;
+        text-align: left;
+      }
+
+      .preset-title {
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      .preset-note {
+        color: var(--text-dim);
+        font-size: 12px;
+      }
+
+      .preset-minutes {
+        color: var(--accent-text);
+        font-size: 24px;
+        font-weight: 300;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .custom-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        align-items: center;
+        gap: 10px;
+        margin-top: 14px;
+        padding: 12px 14px;
+        border: 1px solid var(--border-default);
+        border-radius: 12px;
+        background: #15151a;
+      }
+
+      .custom-row input {
+        width: 100%;
+        min-width: 0;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: var(--text-primary);
+        font-size: 25px;
+        font-weight: 300;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .custom-row span {
+        color: var(--text-dim);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .inline-start {
+        width: 38px;
+        height: 38px;
+        border: 1px solid var(--border-accent);
+        border-radius: 10px;
+        background: var(--surface-accent);
+        color: var(--accent-bright);
+        cursor: pointer;
+      }
+
+      .drill-screen {
+        position: relative;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--surface-deep);
+      }
+
+      .drill-instruction {
+        display: grid;
+        gap: 6px;
+        margin-top: 14px;
+        text-align: center;
+      }
+
+      .drill-title {
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .drill-subtitle {
+        color: var(--text-dim);
+        font-size: 13px;
+      }
+
+      .gaze-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #b0b0bc;
+        opacity: 0.8;
+      }
+
+      .drill-count {
+        margin-bottom: 8px;
+        color: var(--text-dim);
+        font-size: 52px;
+        font-weight: 200;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .drill-footer {
+        display: grid;
+        justify-items: center;
+        gap: 14px;
+        margin-bottom: 8px;
+      }
+
+      .ghost-button {
+        border: 1px solid var(--border-default);
+        border-radius: 11px;
+        background: transparent;
+        color: var(--text-dim);
+        min-height: 40px;
+        padding: 0 14px;
+        cursor: pointer;
+      }
+
+      .ghost-button:hover {
+        border-color: var(--border-accent);
+        color: var(--text-secondary);
+      }
+
+      .timer-content {
+        display: grid;
+        justify-items: center;
+        gap: 26px;
+        margin-top: 70px;
+      }
+
+      .progress-ring {
+        position: relative;
+        width: 260px;
+        height: 260px;
+        display: grid;
+        place-items: center;
+      }
+
+      .progress-ring svg {
+        position: absolute;
+        inset: 0;
+        transform: rotate(-90deg);
+      }
+
+      .timer-time {
+        color: var(--text-primary);
+        font-size: 58px;
+        font-weight: 200;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .timer-sub {
+        margin-top: 5px;
+        color: var(--text-dim);
+        text-align: center;
+        font-size: 13px;
+      }
+
+      .status {
+        color: var(--text-secondary);
+        font-size: 14px;
+      }
+
+      .timer-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .nsdr-badge {
+        width: fit-content;
+        padding: 7px 10px;
+        border: 1px solid var(--border-accent);
+        border-radius: 999px;
+        background: var(--surface-accent);
+        color: var(--accent-bright);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .body-cue {
+        margin-top: 24px;
+        color: var(--text-secondary);
+        font-size: 16px;
+      }
+
+      .rest-options {
+        display: grid;
+        gap: 12px;
+        margin-top: 30px;
+      }
+
+      .rest-button {
+        min-height: 74px;
+        padding: 0 16px;
+        text-align: left;
+      }
+
+      .rest-button.recommended {
+        border-color: var(--border-accent);
+        background: var(--surface-accent);
+      }
+
+      .rest-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+
+      .rest-note {
+        margin-top: 5px;
+        color: var(--text-dim);
+        font-size: 12px;
+      }
+
+      .rest-screen {
+        justify-content: center;
+        align-items: center;
+        gap: 18px;
+        background: #101014;
+        text-align: center;
+      }
+
+      .rest-time {
+        font-size: 64px;
+        font-weight: 200;
+        font-variant-numeric: tabular-nums;
+      }
+
+      @media (max-width: 760px) {
+        .review-shell {
+          grid-template-columns: 1fr;
+        }
+
+        .screen-nav {
+          position: sticky;
+          top: 0;
+          z-index: 2;
+          padding: 14px;
+          border-right: 0;
+          border-bottom: 1px solid var(--border-default);
+        }
+
+        .brand-line {
+          margin-bottom: 12px;
+        }
+
+        .nav-list {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .nav-button {
+          min-height: 58px;
+          padding: 9px;
+        }
+
+        .nav-caption {
+          display: none;
+        }
+
+        .stage {
+          min-height: auto;
+          padding: 18px;
+        }
+
+        .device,
+        .app-screen {
+          min-height: 690px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="review-shell">
+      <aside class="screen-nav" aria-label="Mockup screens">
+        <div class="brand-line">
+          <div class="brand-icon" aria-hidden="true">⏱</div>
+          <div class="brand-copy">
+            <div class="brand-name">Focus Keeper</div>
+            <div class="brand-meta">UI mockup</div>
+          </div>
+        </div>
+        <div class="nav-list">
+          <button class="nav-button" type="button" data-target="duration" aria-pressed="true">
+            <span class="nav-label">Duration</span>
+            <span class="nav-caption">Start here</span>
+          </button>
+          <button class="nav-button" type="button" data-target="drill" aria-pressed="false">
+            <span class="nav-label">Drill</span>
+            <span class="nav-caption">Gaze lock</span>
+          </button>
+          <button class="nav-button" type="button" data-target="timer" aria-pressed="false">
+            <span class="nav-label">Timer</span>
+            <span class="nav-caption">Deep focus</span>
+          </button>
+          <button class="nav-button" type="button" data-target="nsdr" aria-pressed="false">
+            <span class="nav-label">NSDR</span>
+            <span class="nav-caption">Rest prompt</span>
+          </button>
+          <button class="nav-button" type="button" data-target="rest" aria-pressed="false">
+            <span class="nav-label">Rest</span>
+            <span class="nav-caption">Minimal timer</span>
+          </button>
+        </div>
+      </aside>
+
+      <section class="stage" aria-label="Focus Keeper app preview">
+        <div class="device">
+          <section class="app-screen duration-screen" data-screen="duration" data-active="true">
+            <div>
+              <div class="app-masthead">
+                <div class="mini-brand">
+                  <span class="mini-icon" aria-hidden="true">⏱</span>
+                  <span>
+                    <span class="mini-title">Focus Keeper</span>
+                    <span class="mini-subtitle">Science-backed deep work</span>
+                  </span>
+                </div>
+              </div>
+              <div class="screen-header">
+                <span class="eyebrow">Session setup</span>
+                <h2>How long?</h2>
+              </div>
+              <div class="duration-options">
+                <button class="preset-button" type="button" data-target="drill">
+                  <span class="preset-main">
+                    <span class="preset-title">Pomodoro</span>
+                    <span class="preset-note">Classic short sprint</span>
+                  </span>
+                  <span class="preset-minutes">25</span>
+                </button>
+                <button class="preset-button" type="button" data-target="drill">
+                  <span class="preset-main">
+                    <span class="preset-title">Sustained</span>
+                    <span class="preset-note">Extended focus block</span>
+                  </span>
+                  <span class="preset-minutes">52</span>
+                </button>
+                <button class="preset-button is-active" type="button" data-target="drill">
+                  <span class="preset-main">
+                    <span class="preset-title">Ultradian</span>
+                    <span class="preset-note">Full focus cycle</span>
+                  </span>
+                  <span class="preset-minutes">90</span>
+                </button>
+              </div>
+              <div class="custom-row">
+                <input type="number" value="90" min="5" max="180" aria-label="Custom session minutes" />
+                <span>min</span>
+                <button class="inline-start" type="button" data-target="drill" aria-label="Start custom duration">→</button>
+              </div>
+            </div>
+            <div>
+              <p class="hint">Add to home screen to install</p>
+            </div>
+          </section>
+
+          <section class="app-screen drill-screen" data-screen="drill">
+            <div class="drill-instruction">
+              <span class="drill-title">Fix your gaze on this dot</span>
+              <span class="drill-subtitle">Do not look away</span>
+            </div>
+            <div class="gaze-dot" aria-hidden="true"></div>
+            <div class="drill-footer">
+              <button class="ghost-button" type="button" data-target="timer">Skip drill</button>
+              <div class="drill-count" role="timer" aria-live="off">60</div>
+            </div>
+          </section>
+
+          <section class="app-screen timer-screen" data-screen="timer">
+            <div class="screen-header">
+              <span class="eyebrow">Deep Focus</span>
+            </div>
+            <div class="timer-content">
+              <div class="progress-ring">
+                <svg viewBox="0 0 260 260" aria-hidden="true">
+                  <circle cx="130" cy="130" r="112" fill="none" stroke="#1a1a20" stroke-width="12" />
+                  <circle
+                    cx="130"
+                    cy="130"
+                    r="112"
+                    fill="none"
+                    stroke="#2e3a70"
+                    stroke-width="12"
+                    stroke-linecap="round"
+                    stroke-dasharray="703.7"
+                    stroke-dashoffset="173"
+                  />
+                </svg>
+                <div>
+                  <div class="timer-time" role="timer" aria-live="off">52:18</div>
+                  <div class="timer-sub">of 90 min</div>
+                </div>
+              </div>
+              <p class="status">Session in progress</p>
+            </div>
+            <div class="timer-actions">
+              <button class="primary-button" type="button">⏸ Pause</button>
+              <button class="secondary-button" type="button" data-target="duration">Abandon</button>
+            </div>
+          </section>
+
+          <section class="app-screen nsdr-screen" data-screen="nsdr">
+            <div>
+              <div class="screen-header">
+                <span class="nsdr-badge">✦ Session Complete</span>
+                <h2>Time to rest.</h2>
+              </div>
+              <p class="body-cue">
+                Close your eyes. Scan slowly from your feet to your head — notice each area without trying to change it.
+                Let your breath settle on its own. Stay still.
+              </p>
+              <div class="rest-options">
+                <button class="rest-button recommended" type="button" data-target="rest">
+                  <span class="rest-title">
+                    <span>Rest 20 min</span>
+                    <span>Recommended</span>
+                  </span>
+                  <span class="rest-note">Longer rest for a meaningful relaxation state</span>
+                </button>
+                <button class="rest-button" type="button" data-target="rest">
+                  <span class="rest-title">
+                    <span>Rest 10 min</span>
+                    <span>Quick reset</span>
+                  </span>
+                  <span class="rest-note">Shorter transition back to the day</span>
+                </button>
+              </div>
+            </div>
+            <button class="secondary-button" type="button" data-target="duration">Skip</button>
+          </section>
+
+          <section class="app-screen rest-screen" data-screen="rest">
+            <span class="eyebrow">Rest</span>
+            <div class="rest-time" role="timer" aria-live="off">19:42</div>
+            <p>Stay still.</p>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const buttons = document.querySelectorAll("[data-target]");
+      const navButtons = document.querySelectorAll(".nav-button");
+      const screens = document.querySelectorAll(".app-screen");
+
+      function showScreen(name) {
+        screens.forEach((screen) => {
+          screen.dataset.active = String(screen.dataset.screen === name);
+        });
+        navButtons.forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.target === name));
+        });
+      }
+
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => showScreen(button.dataset.target));
+      });
+    </script>
+  </body>
+</html>
