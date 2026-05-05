@@ -11,7 +11,7 @@ const DRILL_SECONDS = 60;
 function clampMinutes(value) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return null;
-  return Math.min(180, Math.max(5, Math.round(parsed)));
+  return Math.min(180, Math.max(1, Math.round(parsed)));
 }
 
 function formatTime(totalSeconds) {
@@ -175,6 +175,16 @@ export default function App() {
     setNsdrMinutes(null);
   }, []);
 
+  const restartSessionSetup = useCallback(() => {
+    window.clearTimeout(notificationTimerRef.current);
+    notificationTimerRef.current = null;
+    setCustomMinutes(String(sessionMinutes));
+    setSelectedPreset(PRESETS.some((preset) => preset.minutes === sessionMinutes) ? sessionMinutes : null);
+    setPhase("pickDuration");
+    setTimerPaused(false);
+    setNsdrMinutes(null);
+  }, [sessionMinutes]);
+
   const beginSession = async (requestedMinutes = validCustomMinutes) => {
     const minutes = clampMinutes(requestedMinutes);
     if (minutes === null) return;
@@ -316,7 +326,7 @@ export default function App() {
                 aria-label="Custom session minutes"
                 inputMode="numeric"
                 max="180"
-                min="5"
+                min="1"
                 type="number"
                 value={customMinutes}
                 onChange={(event) => {
@@ -445,6 +455,14 @@ export default function App() {
             {formatTime(nsdrSecondsLeft)}
           </div>
           <p>Stay still.</p>
+          <div className="break-actions">
+            <button className="secondary-button" type="button" onClick={resetSession}>
+              End break
+            </button>
+            <button className="primary-button" type="button" onClick={restartSessionSetup}>
+              Restart session
+            </button>
+          </div>
         </section>
       )}
 

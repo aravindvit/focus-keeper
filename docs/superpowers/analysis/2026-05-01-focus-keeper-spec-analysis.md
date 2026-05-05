@@ -168,7 +168,7 @@ Production verification should include `npm run build` and `npm run preview`, th
 
 - First screen is duration selection; there is no separate Home/landing screen.
 - Duration screen shows compact app identity, tagline, immediately-starting presets, custom input with inline start control, and install hint only outside standalone display mode.
-- Duration picker supports presets 25, 52, 90 and custom 5-180.
+- Duration picker supports presets 25, 52, 90 and custom 1-180.
 - Preset tap or custom start unlocks audio and advances to the 60-second focus drill.
 - Focus drill auto-advances to timer at zero and includes a low-emphasis skip control.
 - Timer can pause/resume and abandon to reset to duration selection.
@@ -215,5 +215,5 @@ Production verification should include `npm run build` and `npm run preview`, th
 - Change "restores dopamine baseline by up to 65%" to a more cautious Yoga Nidra evidence statement.
 - Clarify that NSDR notifications are best-effort while the app remains active in v1.
 - Decide whether the minimal rest countdown needs an invisible or keyboard-only escape path.
-- Add explicit invalid custom-duration handling: clamp to 5-180 and disable custom start when empty/invalid.
+- Add explicit invalid custom-duration handling: clamp to 1-180 and disable custom start when empty/invalid.
 - Add production PWA verification steps to the Definition of Done.

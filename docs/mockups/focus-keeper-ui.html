@@ -17,6 +17,7 @@
         --accent-mid: #4455aa;
         --accent-text: #6878bc;
         --accent-bright: #7888cc;
+        --focus-dot: #d8d8e2;
         --text-primary: #c8c8d4;
         --text-secondary: #76768a;
         --text-dim: #4d4d62;
@@ -378,8 +379,8 @@
         width: 7px;
         height: 7px;
         border-radius: 50%;
-        background: #b0b0bc;
-        opacity: 0.8;
+        background: var(--focus-dot);
+        opacity: 1;
       }
 
       .drill-count {
@@ -520,6 +521,14 @@
         font-variant-numeric: tabular-nums;
       }
 
+      .break-actions {
+        width: min(310px, 100%);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
       @media (max-width: 760px) {
         .review-shell {
           grid-template-columns: 1fr;
@@ -559,6 +568,10 @@
         .device,
         .app-screen {
           min-height: 690px;
+        }
+
+        .break-actions {
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -638,7 +651,7 @@
                 </button>
               </div>
               <div class="custom-row">
-                <input type="number" value="90" min="5" max="180" aria-label="Custom session minutes" />
+                <input type="number" value="90" min="1" max="180" aria-label="Custom session minutes" />
                 <span>min</span>
                 <button class="inline-start" type="button" data-target="drill" aria-label="Start custom duration">→</button>
               </div>
@@ -727,6 +740,10 @@
             <span class="eyebrow">Rest</span>
             <div class="rest-time" role="timer" aria-live="off">19:42</div>
             <p>Stay still.</p>
+            <div class="break-actions">
+              <button class="secondary-button" type="button" data-target="duration">End break</button>
+              <button class="primary-button" type="button" data-target="duration">Restart session</button>
+            </div>
           </section>
         </div>
       </section>

@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-01  
 **Status:** Approved  
-**Revision:** 7 (latest app behavior captured)
+**Revision:** 8 (focus dot and break controls)
 
 ---
 
@@ -17,8 +17,9 @@ The app is intentionally minimal — no accounts, no data persistence, no dashbo
 - The app starts directly on duration selection; there is no Home or landing screen.
 - Preset duration cards are immediate-start actions. Tapping 25, 52, or 90 minutes starts the focus ritual without a separate Begin button.
 - Custom duration uses a compact inline start control, and pressing Enter in the custom input also starts the ritual.
-- The 60-second focus drill remains the default ritual entry, but includes a low-emphasis "Skip drill" control for repeat users and testing.
-- Abandon, NSDR skip, rest completion, refresh, and rest escape all return to Pick Duration.
+- The 60-second focus drill remains the default ritual entry, with a brighter cool-neutral fixation dot and a low-emphasis "Skip drill" control for repeat users and testing.
+- After the focus session, the user enters an NSDR-style break flow. During the break countdown, the user can end the break or restart the next focus session setup.
+- Abandon, NSDR skip, break end, break restart, rest completion, refresh, and rest escape all return to Pick Duration.
 
 ---
 
@@ -95,8 +96,11 @@ Calm and readable. Nothing competes with the work. The accent color signals stat
 | `text-primary` | `#c8c8d4` | Headings, key values |
 | `text-secondary` | `#66667a` | Body text, labels |
 | `text-dim` | `#3a3a50` | Hints, secondary info |
+| `focus-dot` | `#d8d8e2` | Focus Drill fixation target |
 
 No pure white (`#ffffff`). No pure black. No red anywhere — red signals error/danger and has no place in a calm focus tool.
+
+**Fixation dot contrast:** The focus dot is a meaningful graphical object, so it should comfortably exceed WCAG's 3:1 non-text contrast threshold against `surface-deep`. Use a cool neutral high-luminance color rather than saturated color or pure white. `focus-dot` (`#d8d8e2`) on `surface-deep` (`#0b0b0e`) gives a strong visible target without white glare.
 
 ### Typography
 
@@ -184,8 +188,8 @@ Each screen receives only the props it needs from `App` state. No screen imports
 | Ultradian | 90 | Huberman's full ultradian cycle — default selection |
 
 - Tapping a preset immediately creates/resumes the `AudioContext`, sets that duration, and advances to Focus Drill
-- Custom input: `<input type="number">`, range 5–180, labeled "min", with a compact inline start control
-- Custom values are clamped to 5–180; empty, non-numeric, or invalid values disable the custom start control
+- Custom input: `<input type="number">`, range 1–180, labeled "min", with a compact inline start control
+- Custom values are clamped to 1–180; empty, non-numeric, or invalid values disable the custom start control
 - Pressing Enter in the custom input or tapping its inline start control creates/resumes the `AudioContext`, then advances to Focus Drill
 - Selecting a preset no longer waits for a separate confirmation button
 - Small hint text: "Add to home screen to install" (visible only when not in standalone mode — use `window.matchMedia('(display-mode: standalone)')`)
@@ -196,7 +200,8 @@ Each screen receives only the props it needs from `App` state. No screen imports
 
 - Full-screen `surface-deep` (`#0b0b0e`) background — darkest screen in the app
 - Instruction text at top: "Fix your gaze on this dot" / sub-line: "Do not look away"
-- Single centered dot: `7px`, `#b0b0bc`, `opacity: 0.8` — no animation, no pulse
+- Single centered dot: `7px`, `focus-dot` (`#d8d8e2`), `opacity: 1` — no animation, no pulse
+- Dot color must remain high-luminance and cool-neutral against the dark background; avoid pure white, saturated accent colors, or animated glow
 - **60-second countdown** displayed at bottom in large, dim numerals (not meant to be read actively — user's eyes should be on the dot)
 - Low-emphasis **Skip drill** control — advances directly to Timer for repeat users/testing, but must be visually secondary so the gaze ritual remains the default path
 - Auto-advances to Timer when countdown reaches zero
@@ -228,9 +233,9 @@ Each screen receives only the props it needs from `App` state. No screen imports
 
 ---
 
-### 4. NSDR Prompt
+### 4. Break / NSDR Prompt
 
-Post-session non-sleep deep rest cue.
+Post-session break cue using an NSDR-style non-sleep deep rest prompt.
 
 - Small badge: "✦ Session Complete"
 - Heading: "Time to rest."
@@ -250,14 +255,19 @@ Post-session non-sleep deep rest cue.
   2. Request notification permission if not yet granted (`Notification.requestPermission()`)
   3. If granted: schedule a best-effort notification for when the timer ends
   4. If denied or unsupported: the NSDR timer still runs; a visible on-screen countdown shows remaining time so the user isn't stranded
-  5. Screen transitions to a minimal rest view: dim screen, large countdown, no visible controls
+  5. Screen transitions to a minimal break view: dim screen, large countdown, and two low-emphasis controls
 - On rest complete (or notification dismissed): play chime, return to Pick Duration
+
+**Break controls:** During the break countdown, show:
+
+- **End break** → stops the break immediately and returns to Pick Duration
+- **Restart session** → stops the break immediately and returns to Pick Duration with the previous session duration still selected, ready to begin another focus session
 
 **Notification reliability:** Browser notifications require support and a secure context, and scheduled `setTimeout` notifications only work while the app remains active. Closed-app delivery is out of scope for v1 unless a service-worker notification strategy is added later.
 
 **Notification denial UX:** Show on-screen countdown prominently if notification permission was denied or unsupported — do not just silently count down with nothing visible.
 
-**Rest escape hatch:** Even though the rest view has no visible controls, `Escape` may return to Pick Duration so users are never trapped in a no-control screen.
+**Rest escape hatch:** `Escape` may return to Pick Duration so users are never trapped in the break countdown.
 
 ---
 
@@ -319,9 +329,10 @@ Chime: OscillatorNode (sine wave, 528 Hz)
 - Keyboard shortcuts:
   - `Space` → Pause / Resume (during Timer phase)
   - `Escape` → Abandon (during Timer phase, no confirmation)
-  - `Escape` → Return to Pick Duration (during minimal NSDR rest view)
+  - `Escape` → End break and return to Pick Duration (during break countdown)
 - ARIA roles: timer countdown uses `role="timer"` + `aria-live="off"` (avoid constant announcements)
 - Color contrast: all body text meets WCAG AA (4.5:1 against its background surface)
+- Focus dot meets WCAG non-text contrast guidance against the Focus Drill background
 - No motion-only affordances — all state changes include a text change
 
 ---
