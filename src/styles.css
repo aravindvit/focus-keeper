@@ -10,6 +10,7 @@
   --accent-mid: #4455aa;
   --accent-text: #6878bc;
   --accent-bright: #7888cc;
+  --focus-dot: #d8d8e2;
   --text-primary: #c8c8d4;
   --text-secondary: #707084;
   --text-dim: #4f4f64;
@@ -333,8 +334,8 @@ p {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #b0b0bc;
-  opacity: 0.8;
+  background: var(--focus-dot);
+  opacity: 1;
 }
 
 .drill-count {
@@ -482,6 +483,14 @@ p {
   font-variant-numeric: tabular-nums;
 }
 
+.break-actions {
+  width: min(310px, 100%);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
 .update-toast {
   position: fixed;
   right: 18px;
@@ -526,5 +535,9 @@ p {
   .progress-ring {
     width: 236px;
     height: 236px;
+  }
+
+  .break-actions {
+    grid-template-columns: 1fr;
   }
 }
