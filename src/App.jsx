@@ -175,15 +175,18 @@ export default function App() {
     setNsdrMinutes(null);
   }, []);
 
-  const restartSessionSetup = useCallback(() => {
+  const restartSession = useCallback(async () => {
     window.clearTimeout(notificationTimerRef.current);
     notificationTimerRef.current = null;
     setCustomMinutes(String(sessionMinutes));
     setSelectedPreset(PRESETS.some((preset) => preset.minutes === sessionMinutes) ? sessionMinutes : null);
-    setPhase("pickDuration");
     setTimerPaused(false);
     setNsdrMinutes(null);
-  }, [sessionMinutes]);
+    await unlockAudio();
+    setPhase("focusDrill");
+    setDrillRunId((id) => id + 1);
+    playChime();
+  }, [sessionMinutes, unlockAudio, playChime]);
 
   const beginSession = async (requestedMinutes = validCustomMinutes) => {
     const minutes = clampMinutes(requestedMinutes);
@@ -459,7 +462,7 @@ export default function App() {
             <button className="secondary-button" type="button" onClick={resetSession}>
               End break
             </button>
-            <button className="primary-button" type="button" onClick={restartSessionSetup}>
+            <button className="primary-button" type="button" onClick={restartSession}>
               Restart session
             </button>
           </div>

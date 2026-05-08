@@ -174,7 +174,7 @@ Production verification should include `npm run build` and `npm run preview`, th
 - Timer can pause/resume and abandon to reset to duration selection.
 - Timer auto-advances to NSDR prompt at zero and plays a chime.
 - NSDR prompt supports 20-minute recommended rest, 10-minute rest, and skip.
-- Rest countdown completes, plays a chime, and returns to duration selection.
+- Rest countdown completes, plays a chime, and returns to duration selection; Restart session from the break starts a new Focus Drill using the previous session duration.
 
 ### Technical
 

@@ -18,8 +18,8 @@ The app is intentionally minimal — no accounts, no data persistence, no dashbo
 - Preset duration cards are immediate-start actions. Tapping 25, 52, or 90 minutes starts the focus ritual without a separate Begin button.
 - Custom duration uses a compact inline start control, and pressing Enter in the custom input also starts the ritual.
 - The 60-second focus drill remains the default ritual entry, with a brighter cool-neutral fixation dot and a low-emphasis "Skip drill" control for repeat users and testing.
-- After the focus session, the user enters an NSDR-style break flow. During the break countdown, the user can end the break or restart the next focus session setup.
-- Abandon, NSDR skip, break end, break restart, rest completion, refresh, and rest escape all return to Pick Duration.
+- After the focus session, the user enters an NSDR-style break flow. During the break countdown, the user can end the break or restart the previous session duration immediately.
+- Abandon, NSDR skip, break end, rest completion, refresh, and rest escape return to Pick Duration. Break restart begins a new focus ritual using the previous session duration.
 
 ---
 
@@ -261,7 +261,7 @@ Post-session break cue using an NSDR-style non-sleep deep rest prompt.
 **Break controls:** During the break countdown, show:
 
 - **End break** → stops the break immediately and returns to Pick Duration
-- **Restart session** → stops the break immediately and returns to Pick Duration with the previous session duration still selected, ready to begin another focus session
+- **Restart session** → stops the break immediately and starts a new Focus Drill using the previous session duration; it should not return to Pick Duration first
 
 **Notification reliability:** Browser notifications require support and a secure context, and scheduled `setTimeout` notifications only work while the app remains active. Closed-app delivery is out of scope for v1 unless a service-worker notification strategy is added later.
 
